@@ -31,7 +31,7 @@ export class AbstractService<Entity extends AbstractEntity> {
     });
   }
 
-  async findOrThrowException(
+  async findOneOrThrowException(
     options: {
       findData?: FindOptionsWhere<Entity>;
       relations?: FindOptionsRelations<Entity>;

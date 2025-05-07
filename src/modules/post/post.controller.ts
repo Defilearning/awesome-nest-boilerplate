@@ -62,7 +62,7 @@ export class PostController {
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ type: PostDto })
   async getSinglePost(@UUIDParam('id') id: Uuid): Promise<PostDto> {
-    const entity = await this.postService.findOrThrowException(
+    const entity = await this.postService.findOneOrThrowException(
       {
         findData: {
           id,

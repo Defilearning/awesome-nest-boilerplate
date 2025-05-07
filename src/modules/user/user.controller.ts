@@ -37,7 +37,7 @@ export class UserController {
     type: UserDto,
   })
   async getUser(@UUIDParam('id') userId: Uuid): Promise<UserDto> {
-    const foundData = await this.userService.findOrThrowException(
+    const foundData = await this.userService.findOneOrThrowException(
       {
         findData: {
           id: userId,
