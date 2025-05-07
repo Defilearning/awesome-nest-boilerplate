@@ -24,6 +24,7 @@ import { CreatePostDto } from './dtos/create-post.dto';
 import { PostDto } from './dtos/post.dto';
 import { PostPageOptionsDto } from './dtos/post-page-options.dto';
 import { UpdatePostDto } from './dtos/update-post.dto';
+import { PostNotFoundException } from './exceptions/post-not-found.exception';
 import { PostService } from './post.service';
 
 @Controller('posts')
@@ -53,7 +54,7 @@ export class PostController {
   async getPosts(
     @Query() postsPageOptionsDto: PostPageOptionsDto,
   ): Promise<PageDto<PostDto>> {
-    return this.postService.getAllPost(postsPageOptionsDto);
+    return this.postService.paginate(postsPageOptionsDto);
   }
 
   @Get(':id')
@@ -61,7 +62,14 @@ export class PostController {
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ type: PostDto })
   async getSinglePost(@UUIDParam('id') id: Uuid): Promise<PostDto> {
-    const entity = await this.postService.getSinglePost(id);
+    const entity = await this.postService.findOrThrowException(
+      {
+        findData: {
+          id,
+        },
+      },
+      new PostNotFoundException(),
+    );
 
     return entity.toDto();
   }
