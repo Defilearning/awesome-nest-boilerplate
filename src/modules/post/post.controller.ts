@@ -77,17 +77,40 @@ export class PostController {
   @Put(':id')
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiAcceptedResponse()
-  updatePost(
+  async updatePost(
     @UUIDParam('id') id: Uuid,
     @Body() updatePostDto: UpdatePostDto,
-  ): Promise<void> {
-    return this.postService.updatePost(id, updatePostDto);
+  ): Promise<PostDto> {
+    const foundPost = await this.postService.findOneOrThrowException(
+      {
+        findData: {
+          id,
+        },
+      },
+      new PostNotFoundException(),
+    );
+
+    const savedData = await this.postService.updatePost(
+      foundPost,
+      updatePostDto,
+    );
+
+    return savedData.toDto();
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiAcceptedResponse()
   async deletePost(@UUIDParam('id') id: Uuid): Promise<void> {
-    await this.postService.deletePost(id);
+    await this.postService.findOneOrThrowException(
+      {
+        findData: {
+          id,
+        },
+      },
+      new PostNotFoundException(),
+    );
+
+    await this.postService.delete({ id });
   }
 }

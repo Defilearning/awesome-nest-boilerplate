@@ -5,10 +5,9 @@ import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 
 import { AbstractService } from '../../common/abstract.service';
+import { assignDefined } from '../../common/utils';
 import { CreatePostCommand } from './commands/create-post.command';
 import { CreatePostDto } from './dtos/create-post.dto';
-import { type UpdatePostDto } from './dtos/update-post.dto';
-import { PostNotFoundException } from './exceptions/post-not-found.exception';
 import { PostEntity } from './post.entity';
 
 @Injectable()
@@ -28,33 +27,12 @@ export class PostService extends AbstractService<PostEntity> {
     );
   }
 
-  async updatePost(id: Uuid, updatePostDto: UpdatePostDto): Promise<void> {
-    const queryBuilder = this.postRepository
-      .createQueryBuilder('post')
-      .where('post.id = :id', { id });
+  async updatePost(
+    entity: PostEntity,
+    updatePostDto: Partial<PostEntity>,
+  ): Promise<PostEntity> {
+    assignDefined(entity, updatePostDto);
 
-    const postEntity = await queryBuilder.getOne();
-
-    if (!postEntity) {
-      throw new PostNotFoundException();
-    }
-
-    this.postRepository.merge(postEntity, updatePostDto);
-
-    await this.postRepository.save(updatePostDto);
-  }
-
-  async deletePost(id: Uuid): Promise<void> {
-    const queryBuilder = this.postRepository
-      .createQueryBuilder('post')
-      .where('post.id = :id', { id });
-
-    const postEntity = await queryBuilder.getOne();
-
-    if (!postEntity) {
-      throw new PostNotFoundException();
-    }
-
-    await this.postRepository.remove(postEntity);
+    return this.postRepository.save(entity);
   }
 }
