@@ -12,6 +12,7 @@ import {
   IsEnum,
   IsInt,
   IsNumber,
+  IsNumberString,
   IsPositive,
   IsString,
   IsUrl,
@@ -65,6 +66,11 @@ interface IStringFieldOptions extends IFieldOptions {
   maxLength?: number;
   toLowerCase?: boolean;
   toUpperCase?: boolean;
+}
+
+interface INumberStringFieldOptions extends IFieldOptions {
+  minLength?: number;
+  maxLength?: number;
 }
 
 type IClassFieldOptions = IFieldOptions;
@@ -402,7 +408,7 @@ export function UUIDField(
   options: Omit<ApiPropertyOptions, 'type' | 'format' | 'isArray'> &
     IFieldOptions = {},
 ): PropertyDecorator {
-  const decorators = [Type(() => String), IsUUID('4', { each: options.each })];
+  const decorators = [Type(() => String), IsUUID('7', { each: options.each })];
 
   if (options.nullable) {
     decorators.push(IsNullable());
@@ -478,5 +484,46 @@ export function DateFieldOptional(
   return applyDecorators(
     IsUndefinable(),
     DateField({ ...options, required: false }),
+  );
+}
+
+export function NumberStringField(
+  options: Omit<ApiPropertyOptions, 'type'> & INumberStringFieldOptions = {},
+): PropertyDecorator {
+  const decorators = [
+    Type(() => String),
+    IsNumberString({}, { each: options.each }),
+  ];
+
+  if (options.nullable) {
+    decorators.push(IsNullable({ each: options.each }));
+  } else {
+    decorators.push(NotEquals(null, { each: options.each }));
+  }
+
+  if (options.swagger !== false) {
+    decorators.push(
+      ApiProperty({ type: String, ...options, isArray: options.isArray }),
+    );
+  }
+
+  const minLength = options.minLength || 1;
+
+  decorators.push(MinLength(minLength, { each: options.each }));
+
+  if (options.maxLength) {
+    decorators.push(MaxLength(options.maxLength, { each: options.each }));
+  }
+
+  return applyDecorators(...decorators);
+}
+
+export function NumberStringFieldOptional(
+  options: Omit<ApiPropertyOptions, 'type' | 'required'> &
+    INumberStringFieldOptions = {},
+): PropertyDecorator {
+  return applyDecorators(
+    IsUndefinable(),
+    NumberStringField({ required: false, ...options }),
   );
 }
