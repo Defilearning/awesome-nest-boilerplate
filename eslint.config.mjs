@@ -21,7 +21,9 @@ export default [
   },
   forTypescript(importPlugin.flatConfigs.typescript),
   forTypescript(eslint.configs.recommended),
-  ...typescriptEslint.configs['flat/recommended-type-checked'].map(forTypescript),
+  ...typescriptEslint.configs['flat/recommended-type-checked'].map(
+    forTypescript,
+  ),
   forTypescript(unicorn.configs['flat/recommended']),
   forTypescript(importPlugin.flatConfigs.recommended),
   forTypescript(sonarjs.configs.recommended),
@@ -65,8 +67,10 @@ export default [
       'unicorn/prefer-top-level-await': 'off',
       'unicorn/expiring-todo-comments': 'off',
       'sonarjs/no-duplicate-string': 'off',
+      'unicorn/require-number-to-fixed-digits-argument': 'off',
       'import/no-unresolved': ['error', { ignore: ['^@hr-drone\\/*'] }],
       'import/no-duplicates': ['error', { 'prefer-inline': true }],
+      'import/no-named-as-default': 'off',
       'import/consistent-type-specifier-style': ['error', 'prefer-inline'],
       'prettier/prettier': [
         'error',
@@ -110,7 +114,8 @@ export default [
                 'Avoid using the `Function` type. Prefer a specific function type, like `() => void`.',
             },
             Boolean: {
-              message: 'Avoid using the `Boolean` type. Did you mean `boolean`?',
+              message:
+                'Avoid using the `Boolean` type. Did you mean `boolean`?',
               fixWith: 'boolean',
             },
             Number: {
